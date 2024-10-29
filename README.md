@@ -7,7 +7,7 @@
 
 ### ⚠️ **Disclaimer**
 
-This content is provided for **educational and testing purposes only**. Be aware that using these techniques may violate the terms of service for some platforms, and could potentially lead to account suspension or termination.
+This content is provided for **educational and testing purposes only**. Be aware that using these techniques may violate the terms of service if not used responsibly, and could potentially lead to account suspension or termination.
 
 **Use responsibly and at your own risk**.  
 *The author is not responsible for any consequences arising from misuse.*
