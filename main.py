@@ -269,7 +269,7 @@ def start_rewards():
             continue
         print(f'Email:\t{EMAIL}\n\tPoints:\t{points}\n\tCash Value:\t{CUR_SYMBOL}{round(points/CURRENCY,3)}\n')
         try:
-            PC_SEARCHES,MOBILE_SEARCHES = 4,0#update_searches(driver)
+            PC_SEARCHES,MOBILE_SEARCHES = update_searches(driver)
         except:
             print(traceback.format_exc())
             driver.quit()
@@ -297,7 +297,8 @@ def start_rewards():
                 finally:
                     driver.quit()
         print(f'\tFinished... \n')
-        print(f'Points earned for {EMAIL}: {max(points_new-points,0)}\n')
+        if MOBILE_SEARCHES:
+            print(f'Points earned for {EMAIL}: {max(points_new-points,0)}\n')
     if ranRewards:
         report = f'\nAll accounts have been automated.'
         print(report)
@@ -310,9 +311,8 @@ def main():
         try:
             start_rewards()
             print(f'Bing Rewards Automation Complete!\n')
-            t = random.randint(20,32)
-            print(f'Sleeping for {t} mins...\n\n')
-            time.sleep(t*60+random.randint(0,59))
+            t = random.randint(3000,4000)
+            print('\nSleeping for a few hours before restarting...\nThank you for using my bot:)\n\n')
             
         except Exception as e:
             print(f'Exception: {e}\n\n{traceback.format_exc()}\n\n\n Attempting to restart Bing Rewards Automation in 10 minutes...')
