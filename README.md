@@ -3,7 +3,7 @@
 ![Made with Python](https://forthebadge.com/images/badges/made-with-python.svg)
 ![MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 
-### An extremely lightweight selenium-based bot that can log-in and automate Bing Searches :)
+### An extremely lightweight selenium-based bot that can log-in and automate Bing Searches
 
 ### ⚠️ **Disclaimer**
 
