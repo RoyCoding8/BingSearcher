@@ -1,0 +1,6 @@
+requests
+selenium
+RandomWords
+pytz
+pandas
+matplotlib
