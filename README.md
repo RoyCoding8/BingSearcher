@@ -1,7 +1,9 @@
+# Bing Searches Automation Tool
+
 ![Made with Python](https://forthebadge.com/images/badges/made-with-python.svg)
 ![MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 
-### A Selenium-based Bot that uses selenium to automate Bing Searches
+### An extremely lightweight selenium-based bot that can log-in and automate Bing Searches :)
 
 ### ⚠️ **Disclaimer**
 
@@ -43,8 +45,8 @@ This content is provided for **educational and testing purposes only**. Be aware
    On the first run, this will automatically install any required dependencies.
 
 ## Features
-
-
+- Multi-account support
+- Mobile searches support
 
 ## Future Features
 
