@@ -2,10 +2,11 @@ import os, random, time, traceback
 
 try:
     import requests
-except:
+except ImportError:
+    print('Requirements not found, installing requirements...')
     os.system('pip install -r requirements.txt')
+    import requests
 
-import requests
 from selenium                           import webdriver
 from selenium.webdriver.common.by       import By
 from selenium.webdriver.support.ui      import WebDriverWait
@@ -72,22 +73,25 @@ def check_ip_address():
     print()
 
 def get_driver(isMobile=False):
-    if BROWSER == 'chrome' or BROWSER == 'brave':
+    if BROWSER in ['chrome', 'brave']:
         options = webdriver.ChromeOptions()
         options.binary_location = BROWSER_PATH
         service = Service(DRIVER_PATH)
-    else:
+    elif BROWSER == 'edge':
         options = webdriver.EdgeOptions()
         options.binary_location = BROWSER_PATH
         service = Service(DRIVER_PATH)
+    else:
+        options = webdriver.ChromeOptions()
+        service = None
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument("--disable-blink-features=AutomationControlled")
     if isMobile:
         mobile_emulation = {"deviceName": "Nexus 5"}
         options.add_experimental_option("mobileEmulation", mobile_emulation)
-    if BROWSER == 'chrome' or BROWSER == 'brave':
+    if BROWSER in ['chrome', 'brave', '']:
         driver = webdriver.Chrome(options=options,service=service)
-    else:
+    elif BROWSER == 'edge':
         driver = webdriver.Edge(options=options,service=service)
     driver.maximize_window()
     return driver
