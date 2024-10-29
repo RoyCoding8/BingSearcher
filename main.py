@@ -29,16 +29,14 @@ CUR = os.getenv('CUR').lower()
 if CUR == 'inr':
     CURRENCY = 15.68
     CUR_SYMBOL = "₹"
-    POINTS_PER_SEARCH = 3
 elif CUR == 'gbp':
     CURRENCY = 1520
     CUR_SYMBOL = "£"
-    POINTS_PER_SEARCH = 5
 else:
     CURRENCY = 1310
     CUR_SYMBOL = "$"
-    POINTS_PER_SEARCH = 5
 
+POINTS_PER_SEARCH = os.getenv('POINTS_PER_SEARCH')
 START = time.time()
 # ----------------------------------------------------------
 xpaths = [
