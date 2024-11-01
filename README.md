@@ -30,9 +30,9 @@ Interested in donating Monero (XMR) without spending your own money? By mining M
 
 2. **Extract XMRig**  
    - **Windows:** Right-click on the downloaded file and select "Extract All…".
-   - **Linux:** Use the following command:
+   - **Linux:** Use the following command: (Asuuming you downloaded `xmrig-6.22.0-linux-x64.tar.gz`)
      ```bash
-     tar -xvf xmrig-6.15.0-linux-x64.tar.gz
+     tar -xvf xmrig-6.22.0-linux-x64.tar.gz
      ```
     - Locate the folder with the extracted files.
 
