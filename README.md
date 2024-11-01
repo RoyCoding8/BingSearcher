@@ -25,8 +25,8 @@ Interested in donating Monero (XMR) without spending your own money? By mining M
 
 1. **Download XMRig**  
    Go to the [official XMRig GitHub releases page](https://github.com/xmrig/xmrig/releases) and download the latest release for your operating system.  
-   - For **Windows**: Download the `.zip` file (e.g., `xmrig-6.15.0-win64.zip`).
-   - For **Linux**: Download the `.tar.gz` file (e.g., `xmrig-6.15.0-linux-x64.tar.gz`).
+   - For **Windows**: Download the `.zip` file (e.g., `xmrig-6.22.1-win64.zip`).
+   - For **Linux**: Download the `.tar.gz` file (e.g., `xmrig-6.22.1-linux-x64.tar.gz`).
 
 2. **Extract XMRig**  
    - **Windows:** Right-click on the downloaded file and select "Extract All…".
