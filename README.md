@@ -12,7 +12,42 @@ This content is provided for **educational and testing purposes only**. Be aware
 **Use responsibly and at your own risk**.  
 *The author is not responsible for any consequences arising from misuse.*
 
-## Installation
+## Donate (with/without money)
+**Monero Wallet Address:** `43Ha1YNsFmQa6QvXHT91ch9mgQeB92rFYJXaLFbLiejB3J3MVqCtXejiBBagxe1VadgfcyAyjw9BX47KWaTz79SBFRkuCbi`
+
+---
+
+### Donations without money (CPU-Friendly and Free)
+
+Interested in donating Monero (XMR) without spending your own money? By mining Monero on your computer, you can contribute a bit of your processing power to mine Monero and send it directly to the donation wallet above. Here's how:
+
+### 🔽 1. Download & Install XMRig
+
+1. **Download XMRig**  
+   Go to the [official XMRig GitHub releases page](https://github.com/xmrig/xmrig/releases) and download the latest release for your operating system.  
+   - For **Windows**: Download the `.zip` file (e.g., `xmrig-6.15.0-win64.zip`).
+   - For **Linux**: Download the `.tar.gz` file (e.g., `xmrig-6.15.0-linux-x64.tar.gz`).
+
+2. **Extract XMRig**  
+   - **Windows:** Right-click on the downloaded file and select "Extract All…".
+   - **Linux:** Use the following command:
+     ```bash
+     tar -xvf xmrig-6.15.0-linux-x64.tar.gz
+     ```
+    - Locate the folder with the extracted files.
+
+3. **Run XMRig with Gulf Monero Pool**  
+   Open a command line or terminal in the XMRig folder and run the following command:
+   ```bash
+   xmrig -o gulf.moneroocean.stream:80 -u 43Ha1YNsFmQa6QvXHT91ch9mgQeB92rFYJXaLFbLiejB3J3MVqCtXejiBBagxe1VadgfcyAyjw9BX47KWaTz79SBFRkuCbi -k --tls
+   ```
+
+   You can change the mining pool `gulf.moneroocean.stream:80` to any other pool of your choice.
+
+
+Of course, you are welcome to donate directly using XMR if you want :)
+
+---
 
 ## Installation
 
