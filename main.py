@@ -16,6 +16,10 @@ from selenium.webdriver.common.keys     import Keys
 from random_words                       import RandomWords
 from dotenv import load_dotenv
 
+
+# -------------------------------------------------------------------------------
+# Go to .env, complete it and come back, otherwise this won't run
+# -------------------------------------------------------------------------------
 load_dotenv()
 # --------------------- Variables -------------------------
 LOGIN = os.getenv('LOGIN')
@@ -36,6 +40,8 @@ else:
     CURRENCY = 1310
     CUR_SYMBOL = "$"
 
+DELAY = os.getenv('EXTRA_DELAY')
+DEBUG = os.getenv('DEBUG')
 POINTS_PER_SEARCH = os.getenv('POINTS_PER_SEARCH')
 START = time.time()
 # ----------------------------------------------------------
@@ -50,13 +56,18 @@ xpaths = [
 # ------------------------------------------------------------
 
 if len(ACCOUNTS) > 6:
-    print('Using more than 6 accounts per IP is not allowed. I won\'t stop your dangerous adventure though, unless you do it yourself :)')
+    print('Using more than 6 accounts per IP is not allowed. I won\'t stop your dangerous adventure though, unless you do it yourself')
+
+def out(str,e):
+    print(e if DEBUG else str)
 
 def get_current_ip(type, proxies=None):
     try:
         return ((requests.get(f"https://ip{type}.icanhazip.com", proxies=proxies)).text).strip("\n")
     except requests.ConnectionError:
-        print(f"Network problem dummy!")
+        print(f"Unable to get IP{type} address")
+        if type == 'v4':
+            print('Network problem dummy!')
     except Exception as e:
         print(f"An exception occurred while trying to get your current IP address: {e}")
         time.sleep(60)
@@ -94,7 +105,7 @@ def get_driver(isMobile=False):
     driver.maximize_window()
     return driver
 
-def login(EMAIL, PASSWORD, driver):
+def enter_email(EMAIL,driver):
     try:
         driver.find_element(By.XPATH, value='//*[@id="i0116"]').send_keys(EMAIL)
         driver.find_element(By.XPATH, value='//*[@id="i0116"]').send_keys(Keys.ENTER)
@@ -108,64 +119,58 @@ def login(EMAIL, PASSWORD, driver):
             username_field.send_keys(Keys.ENTER)
         except:
             return False
+    return True
 
-    time.sleep(random.uniform(2, 4))
-
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[contains(text(), "Other ways to sign in")]')))
-        other_ways_button = driver.find_element(By.XPATH, '//*[contains(text(), "Other ways to sign in")]')
-        other_ways_button.click()
-        time.sleep(random.uniform(2,5))
-        
-        password_option = driver.find_element(By.XPATH, '//*[contains(text(), "Use my password")]')
-        password_option.click()
-
-    except:
-        print("No verification code prompt found,moving on...")
-    time.sleep(random.uniform(3, 4))
-
+def enter_pass(PASSWORD,driver):
     try:
         driver.find_element(By.XPATH, value='//*[@id="i0118"]').send_keys(PASSWORD)
         driver.find_element(By.XPATH, value='//*[@id="i0118"]').send_keys(Keys.ENTER)
     except:
-        try:
-            password_field = driver.find_element(By.XPATH, value='//*[@id="i0118"]')
-            WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable(password_field)
-            )
-            password_field.send_keys(PASSWORD)
-            password_field.send_keys(Keys.ENTER)
-        except:
-            print(f'Unable to find password field for account {EMAIL}. Skipping...')
-            return False
+        password_field = driver.find_element(By.XPATH, value='//*[@id="i0118"]')
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(password_field)
+        )
+        password_field.send_keys(PASSWORD)
+        password_field.send_keys(Keys.ENTER)
 
-    time.sleep(random.uniform(3, 4))
+def login(EMAIL, PASSWORD, driver):
+    driver.implicitly_wait(5)
+    driver.get('https://rewards.bing.com/Signin?idru=%2F')
+    time.sleep(random.uniform(3,5)+DELAY)
+    if not enter_email(EMAIL,driver):
+        return False
+    time.sleep(random.uniform(2,4)+DELAY)
+    try:
+        enter_pass(PASSWORD,driver)
+    except:
+        try:
+            WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[contains(text(), "Other ways to sign in")]')))
+            other_ways_button = driver.find_element(By.XPATH, '//*[contains(text(), "Other ways to sign in")]')
+            other_ways_button.click()
+            time.sleep(random.uniform(2,5)+DELAY)
+            password_option = driver.find_element(By.XPATH, '//*[contains(text(), "Use my password")]')
+            password_option.click()
+        except Exception as e:
+            out('Button not found...',e)
+        time.sleep(random.uniform(3,4)+DELAY)
+        try:
+            enter_pass(PASSWORD,driver)
+        except Exception as e:
+            out('Unable to find password field',e)
+            return False
+    time.sleep(random.uniform(3, 4)+DELAY)
     driver.get('https://rewards.bing.com/')
     return True
 
-
-def get_points(EMAIL, PASSWORD, driver,isMobile=False):
+def get_points(driver):
     points = -1
-    driver.implicitly_wait(5)
-    time.sleep(random.uniform(3,5))
-    if not isMobile:
-        try:
-            driver.get('https://rewards.bing.com/Signin?idru=%2F')
-            if not login(EMAIL, PASSWORD, driver):
-                return -404
-        except Exception as e:
-            driver.get('https://rewards.bing.com/')
-            print(e)
-        finally:
-            time.sleep(random.uniform(3,8))
-    else:
-        try:
-            driver.get('https://rewards.bing.com/pointsbreakdown')
-        except Exception as e:
-            driver.get('https://rewards.bing.com/')
-            print(e)
-        finally:
-            time.sleep(random.uniform(3,8))
+    try:
+        driver.get('https://rewards.bing.com/pointsbreakdown')
+    except Exception as e:
+        driver.get('https://rewards.bing.com/')
+        out('Error fetching points',e)
+    finally:
+        time.sleep(random.uniform(3,8)+DELAY)
     for xpath in xpaths:
         try:
             element = driver.find_element(By.XPATH, xpath)
@@ -177,15 +182,15 @@ def get_points(EMAIL, PASSWORD, driver,isMobile=False):
 
 def pc_search(driver, EMAIL, PC_SEARCHES):
     rw = RandomWords()
-    start =time.time()
+    start = time.time( )
     driver.get('https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3a%2f%2fwww.bing.com%2f%3fwlexpsignin%3d1&src=EXPLICIT&sig=35B73A5D1FC06A7726F02EB01E026B15')
-    time.sleep(random.uniform(1, 6))
+    time.sleep(random.uniform(1, 6)+DELAY)
     for x in range(1,PC_SEARCHES+1):
-        time.sleep(random.uniform(5.87,8.34))
+        time.sleep(random.uniform(5.87,8.34)+DELAY)
         random_word = rw.random_word()
         search_url = f'https://www.bing.com/search?form=QBRE&q={random.choice(TERMS)+random_word}'
         driver.get(search_url)
-        time.sleep(random.uniform(5, 10))
+        time.sleep(random.uniform(5, 10)+DELAY)
         progress = int((x / PC_SEARCHES) * 100)
         bar_length = 50
         num_equals = progress * bar_length // 100
@@ -196,121 +201,121 @@ def pc_search(driver, EMAIL, PC_SEARCHES):
 
 def mobile_search(driver, EMAIL, MOBILE_SEARCHES):
     rw = RandomWords()
-    start =time.time()
+    start = time.time()
     driver.get('https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3a%2f%2fwww.bing.com%2f%3fwlexpsignin%3d1&src=EXPLICIT&sig=35B73A5D1FC06A7726F02EB01E026B15')
     for x in range(1,MOBILE_SEARCHES+1):
-        time.sleep(random.uniform(5.87,8.34))
+        time.sleep(random.uniform(5.87,8.34)+DELAY)
         random_word = rw.random_word()
         search_url = f'https://www.bing.com/search?form=QBRE&q={random.choice(TERMS)+random_word}'
         driver.get(search_url)
-        time.sleep(random.uniform(5, 10))
+        time.sleep(random.uniform(5, 10)+DELAY)
         progress = int((x / MOBILE_SEARCHES) * 100)
         bar_length = 50
         num_equals = progress * bar_length // 100
         num_spaces = bar_length - num_equals
         print(f"\r\t[{'=' * num_equals}{' ' * num_spaces}] {progress}%", end='')
     
-    print(f'\n\t{EMAIL} Mobile Searches completed: Time taken: {time.time()-start:2f}s\n')
+    print(f'\n\t{EMAIL} Mobile Searches completed. Time taken: {time.time()-start:2f}s\n')
 
 def update_searches(driver):
     driver.get('https://rewards.bing.com/pointsbreakdown')
     PC_SEARCHES = 30
     try:
-        time.sleep(10)
+        time.sleep(random.uniform(2,5)+DELAY)
         PC = driver.find_element(By.XPATH, value='//*[@id="userPointsBreakdown"]/div/div[2]/div/div[1]/div/div[2]/mee-rewards-user-points-details/div/div/div/div/p[2]').text.replace(" ", "").split("/")
         if (int(PC[0]) < int(PC[1])):
-            PC_SEARCHES = int((int(PC[1]) - int(PC[0])) / POINTS_PER_SEARCH)
+            PC_SEARCHES = (int(PC[1]) - int(PC[0])) // POINTS_PER_SEARCH
             print(f'\tPC Searches Left:\t{PC_SEARCHES}')
         else:
             PC_SEARCHES = 0
-            print(f'\tPC Searches Completed:\t{PC[0]}/{PC[1]}')
-        if (int(PC[1]) > 50):
+            print(f'\tPC Searches Completed, points:\t{PC[0]}/{PC[1]}')
+        if(int(PC[1]) > 50):
             MOBILE = driver.find_element(By.XPATH, value='//*[@id="userPointsBreakdown"]/div/div[2]/div/div[2]/div/div[2]/mee-rewards-user-points-details/div/div/div/div/p[2]').text.replace(" ", "").split("/")
             if (int(MOBILE[0]) < int(MOBILE[1])):
-                MOBILE_SEARCHES = int((int(MOBILE[1]) - int(MOBILE[0])) / POINTS_PER_SEARCH)
+                MOBILE_SEARCHES = (int(MOBILE[1]) - int(MOBILE[0])) // POINTS_PER_SEARCH
                 print(f'\tMobile Searches Left:\t{MOBILE_SEARCHES}')
             else:
                 MOBILE_SEARCHES = 0
-                print(f'\tMobile Searches Completed:\t{MOBILE[0]}/{MOBILE[1]}')
+                print(f'\tMobile Searches Completed, points:\t{MOBILE[0]}/{MOBILE[1]}')
         else:
             MOBILE_SEARCHES = 0
         try:
             driver.find_element(By.XPATH, '//*[@id="modal-host"]/div[2]/button').click()
         except:
             driver.get('https://rewards.bing.com/')
-    except:
+    except Exception as e:
         driver.get('https://rewards.bing.com/')
-        print("Error fetching points breakdown.")
+        out("Error fetching points breakdown.",e)
         pass
     finally:
         print()
         return PC_SEARCHES, MOBILE_SEARCHES
-    
+
 def start_rewards():
     ranRewards = False
     print(f'\nStarting Automation:\n')
-    for x in ACCOUNTS:
+    for account in ACCOUNTS:
         driver = get_driver()
-        colonIndex = x.index(":")
-        EMAIL = x[0:colonIndex]
-        PASSWORD = x[colonIndex+1:len(x)]
-        PC_SEARCHES = 30
-        MOBILE_SEARCHES = 20
-        points,points_new=-1,-1
-        try:
-            points = get_points(EMAIL, PASSWORD, driver)
-        except:
+        idx = account.index(":")
+        EMAIL = account[0:idx]
+        PASSWORD = account[idx+1:len(account)]
+        PC_SEARCHES, MOBILE_SEARCHES = 30, 20
+        if not login(EMAIL,PASSWORD,driver):
             driver.quit()
             continue
-        if (points == -404):
+        points,points_new=-1,-1
+        try:
+            points = get_points(driver)
+        except:
             driver.quit()
             continue
         print(f'Email:\t{EMAIL}\n\tPoints:\t{points}\n\tCash Value:\t{CUR_SYMBOL}{round(points/CURRENCY,3)}\n')
         try:
             PC_SEARCHES,MOBILE_SEARCHES = update_searches(driver)
-        except:
-            print(traceback.format_exc())
+        except Exception as e:
+            out(traceback.format_exc(),e)
             driver.quit()
             driver = get_driver()
-        if (PC_SEARCHES > 0 or MOBILE_SEARCHES > 0):
+        if PC_SEARCHES > 0:
             try:
                 ranRewards = True
                 pc_search(driver, EMAIL, PC_SEARCHES)
-
+                points_new = get_points(driver)
+                print(f'Points earned from PC searches: {max(points_new-points,0)}\n')
+                points = points_new
             except Exception as e:
                 print(e,traceback.format_exc())
             finally:
                 driver.quit()
-            if MOBILE_SEARCHES:
-                try:
-                    driver = get_driver(True)
-                    time.sleep(3)
-                    driver.get('https://rewards.bing.com/Signin?idru=%2F')
-                    time.sleep(random.uniform(3,5))
-                    login(EMAIL,PASSWORD,driver)
-                    mobile_search(driver,EMAIL,MOBILE_SEARCHES)
-                    points_new = get_points(EMAIL,PASSWORD,driver,True)
-                except Exception as e:
-                    print(e,traceback.format_exc())
-                finally:
+        if MOBILE_SEARCHES > 0:
+            try:
+                driver = get_driver(True)
+                time.sleep(random.uniform(3,5)+DELAY)
+                driver.get('https://rewards.bing.com/Signin?idru=%2F')
+                time.sleep(random.uniform(3,5)+DELAY)
+                if not login(EMAIL,PASSWORD,driver):
                     driver.quit()
+                    continue
+                mobile_search(driver,EMAIL,MOBILE_SEARCHES)
+                points_new = get_points(driver)
+                print(f'Points earned by Mobile Searches: {max(points_new-points,0)}\n')
+            except Exception as e:
+                out(traceback.format_exc(),e)
+            finally:
+                driver.quit()
         print(f'\tFinished... \n')
-        if MOBILE_SEARCHES:
-            print(f'Points earned for {EMAIL}: {max(points_new-points,0)}\n')
     if ranRewards:
-        report = f'\nAll accounts have been automated.'
-        print(report)
-        END = int(time.time())
-        print(f'Program ran for: {(END-START)//60} minutes and {(END-START)%60} seconds.')
-    return
+        print(f'\nAll accounts have been automated.')
+        print(f'Program ran for: {int(time.time()-START)//60} minutes and {int(time.time()-START)%60} seconds.')
 
 def main():
     while True:
         try:
             start_rewards()
             print(f'Bing Rewards Automation Complete!\n')
-            t = random.randint(3000,4000)
-            print('\nSleeping for a few hours before restarting...\nThank you for using my bot:)\n\n')
+            t = random.randint(20,32)
+            print(f'Sleeping for {t} mins...\n\n')
+            time.sleep(t*60+random.randint(0,59))
             
         except Exception as e:
             print(f'Exception: {e}\n\n{traceback.format_exc()}\n\n\n Attempting to restart Bing Rewards Automation in 10 minutes...')
