@@ -29,6 +29,14 @@ BROWSER = os.getenv('BROWSER').lower()
 BROWSER_PATH = os.getenv('BROWSER_PATH')
 DRIVER_PATH = os.getenv('DRIVER_PATH')
 CUR = os.getenv('CUR').lower()
+API_KEY = os.getenv('API_KEY')
+
+if API_KEY != '':
+    try:
+        import google.generativeai as genai
+    except:
+        os.system('pip install google-generativeai')
+        import google.generativeai as genai
 
 if CUR == 'inr':
     CURRENCY = 15.68
@@ -40,10 +48,11 @@ else:
     CURRENCY = 1310
     CUR_SYMBOL = "$"
 
-DELAY = os.getenv('EXTRA_DELAY')
-DEBUG = os.getenv('DEBUG')
-POINTS_PER_SEARCH = os.getenv('POINTS_PER_SEARCH')
+DELAY = int(os.getenv('EXTRA_DELAY'))
+DEBUG = os.getenv('DEBUG') == 'True'
+POINTS_PER_SEARCH = int(os.getenv('POINTS_PER_SEARCH'))
 START = time.time()
+PROMPT = 'Random sentence for web search'
 # ----------------------------------------------------------
 xpaths = [
         '//*[@id="balanceToolTipDiv"]/p/mee-rewards-counter-animation/span',
@@ -56,10 +65,31 @@ xpaths = [
 # ------------------------------------------------------------
 
 if len(ACCOUNTS) > 6:
-    print('Using more than 6 accounts per IP is not allowed. I won\'t stop your dangerous adventure though, unless you do it yourself')
+    print('Using more than 6 accounts per IP is not allowed. I won\'t stop your dangerous adventure, since you like to doom yourself')
 
 def out(str,e):
     print(e if DEBUG else str)
+
+def random_query():
+    rw = RandomWords()
+    random_word = rw.random_word()
+    return random.choice(TERMS)+random_word
+
+genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+def get_query():
+    if API_KEY == '':
+        return random_query()
+    try:
+        response = model.generate_content(PROMPT)
+        output = response.text.strip('"').replace('.','')
+        return output if response and output else random_query()
+    except Exception as e:
+        print('\033[F',end='')
+        out("Failed to fetch sentence from Gemini API",e)
+        print('\033[E',end='')
+        return random_query()
 
 def get_current_ip(type, proxies=None):
     try:
@@ -181,14 +211,12 @@ def get_points(driver):
     return -1
 
 def pc_search(driver, EMAIL, PC_SEARCHES):
-    rw = RandomWords()
     start = time.time( )
     driver.get('https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3a%2f%2fwww.bing.com%2f%3fwlexpsignin%3d1&src=EXPLICIT&sig=35B73A5D1FC06A7726F02EB01E026B15')
     time.sleep(random.uniform(1, 6)+DELAY)
     for x in range(1,PC_SEARCHES+1):
         time.sleep(random.uniform(5.87,8.34)+DELAY)
-        random_word = rw.random_word()
-        search_url = f'https://www.bing.com/search?form=QBRE&q={random.choice(TERMS)+random_word}'
+        search_url = f'https://www.bing.com/search?form=QBRE&q={get_query()}'
         driver.get(search_url)
         time.sleep(random.uniform(5, 10)+DELAY)
         progress = int((x / PC_SEARCHES) * 100)
@@ -197,16 +225,14 @@ def pc_search(driver, EMAIL, PC_SEARCHES):
         num_spaces = bar_length - num_equals
         print(f"\r\t[{'=' * num_equals}{' ' * num_spaces}] {progress}%", end='')
 
-    print(f'\n\t{EMAIL} PC Searches completed. Time taken: {time.time()-start:2f}s\n')
+    print(f'\n\t{EMAIL} PC Searches completed. Time taken: {time.time()-start:.2f}s\n')
 
 def mobile_search(driver, EMAIL, MOBILE_SEARCHES):
-    rw = RandomWords()
     start = time.time()
     driver.get('https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3a%2f%2fwww.bing.com%2f%3fwlexpsignin%3d1&src=EXPLICIT&sig=35B73A5D1FC06A7726F02EB01E026B15')
     for x in range(1,MOBILE_SEARCHES+1):
         time.sleep(random.uniform(5.87,8.34)+DELAY)
-        random_word = rw.random_word()
-        search_url = f'https://www.bing.com/search?form=QBRE&q={random.choice(TERMS)+random_word}'
+        search_url = f'https://www.bing.com/search?form=QBRE&q={get_query()}'
         driver.get(search_url)
         time.sleep(random.uniform(5, 10)+DELAY)
         progress = int((x / MOBILE_SEARCHES) * 100)
@@ -215,11 +241,11 @@ def mobile_search(driver, EMAIL, MOBILE_SEARCHES):
         num_spaces = bar_length - num_equals
         print(f"\r\t[{'=' * num_equals}{' ' * num_spaces}] {progress}%", end='')
     
-    print(f'\n\t{EMAIL} Mobile Searches completed. Time taken: {time.time()-start:2f}s\n')
+    print(f'\n\t{EMAIL} Mobile Searches completed. Time taken: {time.time()-start:.2f}s\n')
 
 def update_searches(driver):
     driver.get('https://rewards.bing.com/pointsbreakdown')
-    PC_SEARCHES = 30
+    PC_SEARCHES, MOBILE_SEARCHES = 30, 20
     try:
         time.sleep(random.uniform(2,5)+DELAY)
         PC = driver.find_element(By.XPATH, value='//*[@id="userPointsBreakdown"]/div/div[2]/div/div[1]/div/div[2]/mee-rewards-user-points-details/div/div/div/div/p[2]').text.replace(" ", "").split("/")
@@ -269,7 +295,7 @@ def start_rewards():
         except:
             driver.quit()
             continue
-        print(f'Email:\t{EMAIL}\n\tPoints:\t{points}\n\tCash Value:\t{CUR_SYMBOL}{round(points/CURRENCY,3)}\n')
+        print(f'Email:\t{EMAIL}\n\tPoints:\t{points}\n\tCash Value:\t{CUR_SYMBOL}{(points/CURRENCY):.2f}\n')
         try:
             PC_SEARCHES,MOBILE_SEARCHES = update_searches(driver)
         except Exception as e:
