@@ -12,6 +12,8 @@ This content is provided for **educational and testing purposes only**. Be aware
 **Use responsibly and at your own risk**.  
 *The author is not responsible for any consequences arising from misuse.*
 
+---
+
 ## Installation
 
 1. **Ensure Browser Installation**  
@@ -42,11 +44,10 @@ This content is provided for **educational and testing purposes only**. Be aware
    ```
    On the first run, this will automatically install any required dependencies.
 
+---
 
 ## Donate (with/without money)
 **Monero Wallet Address:** `43Ha1YNsFmQa6QvXHT91ch9mgQeB92rFYJXaLFbLiejB3J3MVqCtXejiBBagxe1VadgfcyAyjw9BX47KWaTz79SBFRkuCbi`
-
----
 
 ### Donations without money (CPU-Friendly and Free)
 
