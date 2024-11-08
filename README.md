@@ -44,6 +44,11 @@ This content is provided for **educational and testing purposes only**. Be aware
    ```
    On the first run, this will automatically install any required dependencies.
 
+**Using AI-generated query: (Optional)**
+- Head over to https://ai.google.dev/gemini-api/docs/api-key and get an API key. 
+- Paste the API key in the .env file
+- That's it, enjoy!
+
 ---
 
 ## Donate (with/without money)
