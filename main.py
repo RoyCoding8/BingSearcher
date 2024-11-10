@@ -30,6 +30,7 @@ BROWSER_PATH = os.getenv('BROWSER_PATH')
 DRIVER_PATH = os.getenv('DRIVER_PATH')
 CUR = os.getenv('CUR').lower()
 API_KEY = os.getenv('API_KEY')
+HEADLESS = os.getenv('HEADLESS') == True
 
 if API_KEY != '':
     try:
@@ -125,6 +126,8 @@ def get_driver(isMobile=False):
         service = None
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument("--disable-blink-features=AutomationControlled")
+    if HEADLESS:
+        options.add_argument('--headless')
     if isMobile:
         mobile_emulation = {"deviceName": "Nexus 5"}
         options.add_experimental_option("mobileEmulation", mobile_emulation)
