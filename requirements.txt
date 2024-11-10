@@ -4,3 +4,4 @@ RandomWords
 pytz
 pandas
 matplotlib
+python-dotenv
