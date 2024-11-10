@@ -37,6 +37,9 @@ if API_KEY != '':
     except:
         os.system('pip install google-generativeai')
         import google.generativeai as genai
+    finally:
+        genai.configure(api_key=API_KEY)
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
 if CUR == 'inr':
     CURRENCY = 15.68
@@ -74,9 +77,6 @@ def random_query():
     rw = RandomWords()
     random_word = rw.random_word()
     return random.choice(TERMS)+random_word
-
-genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
 
 def get_query():
     if API_KEY == '':
