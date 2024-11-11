@@ -126,6 +126,9 @@ def get_driver(isMobile=False):
         service = None
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-sync')
+    options.add_argument('--disk-cache-size=0')
     if HEADLESS:
         options.add_argument('--headless')
     if isMobile:
