@@ -345,10 +345,7 @@ def main():
         try:
             start_rewards()
             print(f'Bing Rewards Automation Complete!\n')
-            t = random.randint(20,32)
-            print(f'Sleeping for {t} mins...\n\n')
-            time.sleep(t*60+random.randint(0,59))
-            
+            break            
         except Exception as e:
             print(f'Exception: {e}\n\n{traceback.format_exc()}\n\n\n Attempting to restart Bing Rewards Automation in 10 minutes...')
             time.sleep(600)
