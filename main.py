@@ -30,7 +30,7 @@ BROWSER_PATH = os.getenv('BROWSER_PATH')
 DRIVER_PATH = os.getenv('DRIVER_PATH')
 CUR = os.getenv('CUR').lower()
 API_KEY = os.getenv('API_KEY')
-HEADLESS = os.getenv('HEADLESS') == True
+HEADLESS = os.getenv('HEADLESS').lower() == 'true'
 
 if API_KEY != '':
     try:
@@ -53,7 +53,7 @@ else:
     CUR_SYMBOL = "$"
 
 DELAY = int(os.getenv('EXTRA_DELAY'))
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = os.getenv('DEBUG').lower() == 'true'
 POINTS_PER_SEARCH = int(os.getenv('POINTS_PER_SEARCH'))
 START = time.time()
 PROMPT = 'Random sentence for web search'
