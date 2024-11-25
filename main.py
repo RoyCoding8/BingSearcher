@@ -345,7 +345,7 @@ def main():
         try:
             start_rewards()
             print(f'Bing Rewards Automation Complete!\n')
-            input('Press Enter to exit...')
+            input('\nPress Enter to exit...')
             break            
         except Exception as e:
             print(f'Exception: {e}\n\n{traceback.format_exc()}\n\n\n Attempting to restart Bing Rewards Automation in 10 minutes...')
