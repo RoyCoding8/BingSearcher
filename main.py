@@ -112,7 +112,7 @@ def check_ip_address():
         print(f"Current IPv6 Address: {current_ipv6}")
     print()
 
-def get_driver(isMobile=False):
+def get_driver(index=0,isMobile=False):
     if BROWSER in ['chrome', 'brave']:
         options = webdriver.ChromeOptions()
         options.binary_location = BROWSER_PATH
@@ -124,21 +124,47 @@ def get_driver(isMobile=False):
     else:
         options = webdriver.ChromeOptions()
         service = None
+    
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
     options.add_argument('--disable-sync')
     options.add_argument('--disk-cache-size=0')
+    
     if HEADLESS:
         options.add_argument('--headless')
+    options.add_argument('--enable-unsafe-swiftshader')
+    
+    width = random.randint(1024, 1920)
+    height = random.randint(768, 1080)
+    options.add_argument(f"--window-size={width},{height}")
+    
     if isMobile:
-        mobile_emulation = {"deviceName": "Nexus 5"}
+        mobile_devices = ["Nexus 5", "Pixel 2", "iPhone X", "Galaxy S9", "iPad Mini"]
+        mobile_emulation = {"deviceName": mobile_devices[index]}
         options.add_experimental_option("mobileEmulation", mobile_emulation)
+    
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1",
+        "Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Mobile Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/89.0 Safari/537.36"
+    ]
+    user_agent = user_agents[index]
+    options.add_argument(f"user-agent={user_agent}")
+    
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
+    
     if BROWSER in ['chrome', 'brave', '']:
-        driver = webdriver.Chrome(options=options,service=service)
+        driver = webdriver.Chrome(options=options, service=service)
     elif BROWSER == 'edge':
-        driver = webdriver.Edge(options=options,service=service)
+        driver = webdriver.Edge(options=options, service=service)
+    
     driver.maximize_window()
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     return driver
 
 def enter_email(EMAIL,driver):
@@ -286,11 +312,9 @@ def update_searches(driver):
 def start_rewards():
     ranRewards = False
     print(f'\nStarting Automation:\n')
-    for account in ACCOUNTS:
-        driver = get_driver()
-        idx = account.index(":")
-        EMAIL = account[0:idx]
-        PASSWORD = account[idx+1:len(account)]
+    for index,account in enumerate(ACCOUNTS):
+        driver = get_driver(index)
+        EMAIL,PASSWORD = account.split(':')
         PC_SEARCHES, MOBILE_SEARCHES = 30, 20
         if not login(EMAIL,PASSWORD,driver):
             driver.quit()
@@ -321,7 +345,7 @@ def start_rewards():
                 driver.quit()
         if MOBILE_SEARCHES > 0:
             try:
-                driver = get_driver(True)
+                driver = get_driver(index,True)
                 time.sleep(random.uniform(3,5)+DELAY)
                 driver.get('https://rewards.bing.com/Signin?idru=%2F')
                 time.sleep(random.uniform(3,5)+DELAY)
