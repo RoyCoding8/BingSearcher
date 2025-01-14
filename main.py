@@ -142,7 +142,7 @@ def get_driver(index=0,isMobile=False):
     
     if isMobile:
         mobile_devices = ["Nexus 5", "Pixel 2", "iPhone X", "Galaxy Note 3", "Galaxy Note II", "Galaxy S5"]
-        mobile_emulation = {"deviceName": mobile_devices[index]}
+        mobile_emulation = {"deviceName": mobile_devices[index%6]}
         options.add_experimental_option("mobileEmulation", mobile_emulation)
     
     user_agents = [
@@ -153,7 +153,7 @@ def get_driver(index=0,isMobile=False):
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_3) AppleWebKit/537.36 (KHTML, like Gecko) Version/15.0 Safari/537.36",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_4_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
     ]
-    user_agent = user_agents[index]
+    user_agent = user_agents[index%6]
     options.add_argument(f"user-agent={user_agent}")
     
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
